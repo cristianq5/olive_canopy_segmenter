@@ -1,42 +1,33 @@
-<html>
-<body>
-<h3>Plugin Builder Results</h3>
+# 🛰️ Olive Canopy Segmenter for QGIS
 
-Congratulations! You just built a plugin for QGIS!<br/><br />
+**Segment olive tree canopies automatically from orthophotos using Otsu thresholding and QGIS.**  
+No code, no preprocessing. Just select a raster and a parcel, click, and go.
 
-<div id='help' style='font-size:.9em;'>
-Your plugin <b>SegmentadorOlivos</b> was created in:<br>
-&nbsp;&nbsp;<b>C:/QGIS/QGIS_plugins/Segmentador_Olivos\segmentador_olivos</b>
-<p>
-Your QGIS plugin directory is located at:<br>
-&nbsp;&nbsp;<b>C:/Users/crist/AppData/Roaming/QGIS/QGIS3/profiles/default/python/plugins</b>
-<p>
-<h3>What's Next</h3>
-<ol>
-    <li>If resources.py is not present in your plugin directory, compile the resources file using pyrcc5 (simply use <b>pb_tool</b> or <b>make</b> if you have automake)
-    <li>Optionally, test the generated sources using <b>make test</b> (or run tests from your IDE)
-    <li>Copy the entire directory containing your new plugin to the QGIS plugin directory (see Notes below)
-    <li>Test the plugin by enabling it in the QGIS plugin manager
-    <li>Customize it by editing the implementation file <b>segmentador_olivos.py</b>
-    <li>Create your own custom icon, replacing the default <b>icon.png</b>
-    <li>Modify your user interface by opening <b>segmentador_olivos_dialog_base.ui</b> in Qt Designer
-</ol>
-Notes:
-<ul>
-    <li>You can use <b>pb_tool</b> to compile, deploy, and manage your plugin. Tweak the <i>pb_tool.cfg</i> file included with your plugin as you add files. Install <b>pb_tool</b> using 
-        <i>pip</i> or <i>easy_install</i>. See <b>http://loc8.cc/pb_tool</b> for more information.
-    <li>You can also use the <b>Makefile</b> to compile and deploy when you
-        make changes. This requires GNU make (gmake). The Makefile is ready to use, however you 
-        will have to edit it to add addional Python source files, dialogs, and translations.
-</ul>
-</div>
-<div style='font-size:.9em;'>
-<p>
-For information on writing PyQGIS code, see <b>http://loc8.cc/pyqgis_resources</b> for a list of resources.
-</p>
-</div>
-<p>
-&copy;2011-2019 GeoApt LLC - geoapt.com 
-</p>
-</body>
-</html>
+---
+
+## 🌿 What does this plugin do?
+
+This QGIS plugin allows users to segment individual olive tree crowns from PNOA orthophotos and a parcel shapefile using a one-click workflow based on computer vision and Otsu’s method.
+
+🎯 Use cases:
+- Count olive trees in a parcel
+- Estimate tree density or crown area
+- Prepare spatial data for NDVI or health analysis per tree
+
+---
+
+## ⚙️ Features
+
+- ✅ Automatic segmentation using Otsu thresholding
+- ✅ Supports different CRS (coordinate transformations included)
+- ✅ Outputs a vector layer (polygons) where each feature is one tree
+- ✅ Area of each crown is automatically calculated (in pixels)
+- ✅ Minimal configuration, suitable for non-programmers
+
+---
+
+## 📦 Installation
+
+1. Download or clone this repository:
+   ```bash
+   git clone https://github.com/cristianq5/olive_canopy_segmenter.git
