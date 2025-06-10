@@ -51,6 +51,13 @@ class SegmentadorOlivosDialogTest(unittest.TestCase):
         """Spin box defaults to factor 1.0."""
         self.assertAlmostEqual(self.dialog.spinOtsuFactor.value(), 1.0, places=2)
 
+    def test_area_button_present(self):
+        """Area calculation button exists."""
+        self.assertEqual(
+            self.dialog.btnCalcularAreaSup.text(),
+            "Calcular área/sup",
+        )
+
 if __name__ == "__main__":
     suite = unittest.makeSuite(SegmentadorOlivosDialogTest)
     runner = unittest.TextTestRunner(verbosity=2)

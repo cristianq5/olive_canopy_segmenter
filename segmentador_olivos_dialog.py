@@ -47,6 +47,7 @@ class SegmentadorOlivosDialog(QtWidgets.QDialog, _FORM):
         self.pixelTool: PixelPickerTool | None = None
         self.canvas = iface.mapCanvas()
         self.muestras: List[Sample] = []
+        self.seg_layer: QgsVectorLayer | None = None
 
         self._fill_combos()
         self._toggle_sample_button()
@@ -56,6 +57,7 @@ class SegmentadorOlivosDialog(QtWidgets.QDialog, _FORM):
         self.btnIniciarMuestras.clicked.connect(self._start_sampling)
         self.btnTerminarMuestras.clicked.connect(self._stop_sampling)
         self.buttonBox.accepted.connect(self.segmentar_con_otsu)
+        self.btnCalcularAreaSup.clicked.connect(self.calcular_area_sup)
 
         # Listen to project changes
         self._prj = QgsProject.instance()
@@ -158,6 +160,7 @@ class SegmentadorOlivosDialog(QtWidgets.QDialog, _FORM):
         try:
             factor = self.spinOtsuFactor.value()
             vlayer = segment_olivos(layer_ras, layer_aoi, factor)
+            self.seg_layer = vlayer
         except Exception as exc:  # noqa: BLE001
             QMessageBox.critical(self, "Segmentation failed", str(exc))
             return
@@ -169,6 +172,54 @@ class SegmentadorOlivosDialog(QtWidgets.QDialog, _FORM):
         if self.pixelTool:
             self.pixelTool.resetRubberBand()
         QTimer.singleShot(_CLOSE_DELAY_MS, self.accept)
+
+    # ----------------------------------------------------------------
+    # Area calculation
+    # ----------------------------------------------------------------
+    def calcular_area_sup(self):
+        """Compute canopy area percentage within the parcel."""
+        if not isinstance(self.seg_layer, QgsVectorLayer):
+            QMessageBox.warning(self, "Error", "Run segmentation first.")
+            return
+
+        aoi_layer: QgsVectorLayer | None = self.comboAOI.currentData()
+        if not isinstance(aoi_layer, QgsVectorLayer):
+            QMessageBox.warning(self, "Error", "AOI layer not selected.")
+            return
+
+        area_aoi = 0.0
+        area_trees = 0.0
+
+        dst_crs = self.seg_layer.crs()
+        src_crs = aoi_layer.crs()
+        if src_crs != dst_crs:
+            tr = QgsCoordinateTransform(src_crs, dst_crs, QgsProject.instance())
+        else:
+            tr = None
+
+        for f in aoi_layer.getFeatures():
+            geom = f.geometry()
+            if tr:
+                geom.transform(tr)
+            area_aoi += geom.area()
+
+        for f in self.seg_layer.getFeatures():
+            area_trees += f.geometry().area()
+
+        if area_aoi == 0:
+            QMessageBox.warning(self, "Error", "AOI area is zero.")
+            return
+
+        pct = area_trees / area_aoi * 100
+        QMessageBox.information(
+            self,
+            "Superficie de vegetaci\u00f3n",
+            (
+                f"\u00c1rea copas: {area_trees:.2f}\n"
+                f"\u00c1rea parcela: {area_aoi:.2f}\n"
+                f"Porcentaje: {pct:.2f}%"
+            ),
+        )
 
     # ----------------------------------------------------------------
     # Disconnect signals
