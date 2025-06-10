@@ -9,6 +9,7 @@ SegmentadorOlivosDialog – Main dialog
 • **New**: Accepts raster and AOI in different CRS (uses coordinate 
   transformations for sampling and segmentation).
 • Segmentation is delegated to `segment_olivos()` (which already transforms AOI).
+• Otsu threshold can be adjusted with a spin box factor.
 """
 from __future__ import annotations
 
@@ -155,7 +156,8 @@ class SegmentadorOlivosDialog(QtWidgets.QDialog, _FORM):
             QMessageBox.warning(self, "Error", "You must select valid AOI and raster.")
             return
         try:
-            vlayer = segment_olivos(layer_ras, layer_aoi)
+            factor = self.spinOtsuFactor.value()
+            vlayer = segment_olivos(layer_ras, layer_aoi, factor)
         except Exception as exc:  # noqa: BLE001
             QMessageBox.critical(self, "Segmentation failed", str(exc))
             return

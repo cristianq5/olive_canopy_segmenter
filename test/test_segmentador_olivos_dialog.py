@@ -36,17 +36,20 @@ class SegmentadorOlivosDialogTest(unittest.TestCase):
     def test_dialog_ok(self):
         """Test we can click OK."""
 
-        button = self.dialog.button_box.button(QDialogButtonBox.Ok)
+        button = self.dialog.buttonBox.button(QDialogButtonBox.Ok)
         button.click()
         result = self.dialog.result()
         self.assertEqual(result, QDialog.Accepted)
 
-    def test_dialog_cancel(self):
-        """Test we can click cancel."""
-        button = self.dialog.button_box.button(QDialogButtonBox.Cancel)
-        button.click()
-        result = self.dialog.result()
-        self.assertEqual(result, QDialog.Rejected)
+    def test_cancel_button_absent(self):
+        """Cancel button is not present in the dialog."""
+        self.assertIsNone(
+            self.dialog.buttonBox.button(QDialogButtonBox.Cancel)
+        )
+
+    def test_spinbox_default(self):
+        """Spin box defaults to factor 1.0."""
+        self.assertAlmostEqual(self.dialog.spinOtsuFactor.value(), 1.0, places=2)
 
 if __name__ == "__main__":
     suite = unittest.makeSuite(SegmentadorOlivosDialogTest)
