@@ -128,8 +128,13 @@ def _rasterize_aoi(
 # MAIN FUNCTION
 # ---------------------------------------------------------------------
 
-def segment_olivos(layer_ras: QgsRasterLayer, layer_aoi: QgsVectorLayer) -> QgsVectorLayer:
-    """Generates temporary layer with segmented canopies – handles mixed CRS."""
+def segment_olivos(
+    layer_ras: QgsRasterLayer, layer_aoi: QgsVectorLayer, factor: float = 1.0
+) -> QgsVectorLayer:
+    """Generates temporary layer with segmented canopies – handles mixed CRS.
+
+    The ``factor`` parameter scales the automatically computed Otsu threshold.
+    """
     mask_arr, extent, px_x, px_y, w, h = _rasterize_aoi(layer_aoi, layer_ras)
 
     raster_path = layer_ras.source().split("|")[0].split("?")[0]
@@ -137,9 +142,13 @@ def segment_olivos(layer_ras: QgsRasterLayer, layer_aoi: QgsVectorLayer) -> QgsV
     if img_gray is None:
         raise RuntimeError("OpenCV could not read the raster (grayscale)")
 
-    _, otsu_full = cv2.threshold(img_gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
-    bin_img = np.zeros_like(otsu_full, dtype=np.uint8)
-    bin_img[mask_arr == 1] = otsu_full[mask_arr == 1]
+    otsu_val, _ = cv2.threshold(
+        img_gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU
+    )
+    th_val = max(0, min(255, otsu_val * factor))
+    _, full_thresh = cv2.threshold(img_gray, th_val, 255, cv2.THRESH_BINARY)
+    bin_img = np.zeros_like(full_thresh, dtype=np.uint8)
+    bin_img[mask_arr == 1] = full_thresh[mask_arr == 1]
 
     mask_trees = np.zeros_like(bin_img, dtype=np.uint8)
     mask_trees[np.logical_and(mask_arr == 1, bin_img == 0)] = 255
